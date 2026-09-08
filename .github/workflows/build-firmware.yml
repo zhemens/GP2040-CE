@@ -32,7 +32,7 @@ jobs:
         run: |
           mkdir -p build
           cd build
-          cmake .. -DGP2040_BOARDCONFIG=${{ github.event.inputs.board_config }}
+          cmake .. -DGP2040_BOARDCONFIG=${{ github.event.inputs.board_config }} -DPICO_SDK_FETCH_FROM_GIT=ON
           make -j$(nproc)
 
       - name: Upload firmware
