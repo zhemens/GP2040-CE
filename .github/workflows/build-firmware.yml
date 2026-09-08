@@ -11,20 +11,25 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           submodules: recursive
+          fetch-depth: 0
 
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y cmake gcc-arm-none-eabi libnewlib-arm-none-eabi build-essential
 
+      - name: Initialize submodules
+        run: |
+          git submodule update --init --recursive
+
       - name: Build firmware
         run: |
-          cd src
           mkdir -p build
           cd build
           cmake .. -DGP2040_BOARDCONFIG=${{ github.event.inputs.board_config }}
@@ -34,4 +39,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: GP2040-CE-firmware
-          path: src/build/*.uf2
+          path: build/*.uf2
