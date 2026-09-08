@@ -1,0 +1,37 @@
+name: Build Firmware
+
+on:
+  workflow_dispatch:
+    inputs:
+      board_config:
+        description: 'Board name (e.g. WaveshareZero, Pico, etc.)'
+        required: true
+        default: 'WaveshareZero'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake gcc-arm-none-eabi libnewlib-arm-none-eabi build-essential
+
+      - name: Build firmware
+        run: |
+          cd src
+          mkdir -p build
+          cd build
+          cmake .. -DGP2040_BOARDCONFIG=${{ github.event.inputs.board_config }}
+          make -j$(nproc)
+
+      - name: Upload firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: GP2040-CE-firmware
+          path: src/build/*.uf2
